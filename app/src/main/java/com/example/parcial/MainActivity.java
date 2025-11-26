@@ -43,6 +43,7 @@ public class MainActivity extends AppCompatActivity implements CameraBridgeViewB
     private boolean hasCameraPermission = false;
     private List<CoinType> coinTypes;
 
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
