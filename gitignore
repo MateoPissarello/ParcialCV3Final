@@ -1,0 +1,69 @@
+
+# --- Build ---
+/build/
+/app/build/
+**/build/
+**/generated/
+
+# --- Gradle ---
+.gradle/
+local.properties
+.gradle/
+**/out/
+
+# --- Log / Debug ---
+*.log
+*.hprof
+
+# --- IntelliJ / Android Studio ---
+.idea/
+/*.iml
+*.iml
+.idea/caches
+.idea/libraries
+.idea/modules.xml
+.idea/workspace.xml
+.idea/navEditor.xml
+.idea/assetWizardSettings.xml
+
+# --- Keystores (NO subir claves privadas) ---
+*.jks
+*.keystore
+*.key
+
+# --- NDK / CMake ---
+.cxx/
+.externalNativeBuild/
+
+# --- Fastlane ---
+fastlane/report.xml
+fastlane/Preview.html
+fastlane/screenshots
+fastlane/test_output
+
+# --- Signing ---
+signing.properties
+
+# --- Misc ---
+captures/
+outputs/
+tmp/
+*.tmp
+*.temp
+
+# --- OS Files ---
+.DS_Store
+Thumbs.db
+
+# --- Kotlin/Java ---
+*.class
+
+# --- Android Gradle Plugin ---
+**/navigation.json
+**/deps.txt
+**/res/options/*.properties
+
+# --- Jetpack Compose ---
+*.kotlin_module
+compose-compiler/
+
