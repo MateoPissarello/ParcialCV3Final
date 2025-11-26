@@ -110,7 +110,7 @@ public class MainActivity extends AppCompatActivity implements CameraBridgeViewB
                 200   // maxRadius
         );
 
-        // Dibujar círculos detectados
+        // Dibujar círculos detectadosssssss
         if (circles.cols() > 0) {
             for (int i = 0; i < circles.cols(); i++) {
                 double[] data = circles.get(0, i);
