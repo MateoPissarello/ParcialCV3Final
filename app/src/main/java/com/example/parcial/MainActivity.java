@@ -29,6 +29,7 @@ public class MainActivity extends AppCompatActivity implements CameraBridgeViewB
     private Mat gray, circles;
 
     private final int CAMERA_PERMISSION = 100;
+    private boolean hasCameraPermission = false;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -43,6 +44,8 @@ public class MainActivity extends AppCompatActivity implements CameraBridgeViewB
             ActivityCompat.requestPermissions(this,
                     new String[]{Manifest.permission.CAMERA},
                     CAMERA_PERMISSION);
+        } else {
+            hasCameraPermission = true;
         }
 
         // --- Vista de la cámara ---
@@ -56,11 +59,32 @@ public class MainActivity extends AppCompatActivity implements CameraBridgeViewB
         super.onResume();
 
         // Cargar OpenCV directamente
-        if (OpenCVLoader.initDebug()) {
+        if (hasCameraPermission && OpenCVLoader.initDebug()) {
             Log.i(TAG, "OpenCV cargado");
+            cameraView.setCameraPermissionGranted();
             cameraView.enableView();
         } else {
-            Log.e(TAG, "OpenCV NO pudo cargarse");
+            Log.e(TAG, "OpenCV NO pudo cargarse o falta permiso de cámara");
+        }
+    }
+
+    @Override
+    public void onRequestPermissionsResult(int requestCode, String[] permissions, int[] grantResults) {
+        super.onRequestPermissionsResult(requestCode, permissions, grantResults);
+
+        if (requestCode == CAMERA_PERMISSION) {
+            hasCameraPermission = grantResults.length > 0
+                    && grantResults[0] == PackageManager.PERMISSION_GRANTED;
+
+            if (hasCameraPermission) {
+                cameraView.setCameraPermissionGranted();
+                if (OpenCVLoader.initDebug()) {
+                    cameraView.enableView();
+                }
+            } else {
+                // Si no se concede el permiso, cerramos la actividad
+                finish();
+            }
         }
     }
 
