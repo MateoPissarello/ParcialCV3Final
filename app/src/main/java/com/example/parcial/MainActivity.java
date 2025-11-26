@@ -14,6 +14,7 @@ import androidx.core.content.ContextCompat;
 
 import org.opencv.android.CameraBridgeViewBase;
 import org.opencv.android.OpenCVLoader;
+import org.opencv.core.Core;
 import org.opencv.core.CvType;
 import org.opencv.core.Mat;
 import org.opencv.core.Point;
@@ -26,9 +27,10 @@ public class MainActivity extends AppCompatActivity implements CameraBridgeViewB
     private static final String TAG = "MainActivity";
 
     private CameraBridgeViewBase cameraView;
-    private Mat gray, circles;
+    private Mat gray, circles, rotated;
 
     private final int CAMERA_PERMISSION = 100;
+    private boolean hasCameraPermission = false;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -43,6 +45,8 @@ public class MainActivity extends AppCompatActivity implements CameraBridgeViewB
             ActivityCompat.requestPermissions(this,
                     new String[]{Manifest.permission.CAMERA},
                     CAMERA_PERMISSION);
+        } else {
+            hasCameraPermission = true;
         }
 
         // --- Vista de la cámara ---
@@ -56,11 +60,32 @@ public class MainActivity extends AppCompatActivity implements CameraBridgeViewB
         super.onResume();
 
         // Cargar OpenCV directamente
-        if (OpenCVLoader.initDebug()) {
+        if (hasCameraPermission && OpenCVLoader.initDebug()) {
             Log.i(TAG, "OpenCV cargado");
+            cameraView.setCameraPermissionGranted();
             cameraView.enableView();
         } else {
-            Log.e(TAG, "OpenCV NO pudo cargarse");
+            Log.e(TAG, "OpenCV NO pudo cargarse o falta permiso de cámara");
+        }
+    }
+
+    @Override
+    public void onRequestPermissionsResult(int requestCode, String[] permissions, int[] grantResults) {
+        super.onRequestPermissionsResult(requestCode, permissions, grantResults);
+
+        if (requestCode == CAMERA_PERMISSION) {
+            hasCameraPermission = grantResults.length > 0
+                    && grantResults[0] == PackageManager.PERMISSION_GRANTED;
+
+            if (hasCameraPermission) {
+                cameraView.setCameraPermissionGranted();
+                if (OpenCVLoader.initDebug()) {
+                    cameraView.enableView();
+                }
+            } else {
+                // Si no se concede el permiso, cerramos la actividad
+                finish();
+            }
         }
     }
 
@@ -80,20 +105,31 @@ public class MainActivity extends AppCompatActivity implements CameraBridgeViewB
 
     @Override
     public void onCameraViewStarted(int width, int height) {
-        gray = new Mat(height, width, CvType.CV_8UC1);
+        gray = new Mat();
         circles = new Mat();
+        rotated = new Mat();
     }
 
     @Override
     public void onCameraViewStopped() {
         gray.release();
         circles.release();
+        rotated.release();
     }
 
     @Override
     public Mat onCameraFrame(CameraBridgeViewBase.CvCameraViewFrame inputFrame) {
         Mat rgba = inputFrame.rgba();
-        Imgproc.cvtColor(rgba, gray, Imgproc.COLOR_RGBA2GRAY);
+
+        // Corregir orientación para que el eje X y Y coincidan con el movimiento real de la cámara
+        Core.rotate(rgba, rotated, Core.ROTATE_90_CLOCKWISE);
+
+        if (gray.empty() || gray.rows() != rotated.rows() || gray.cols() != rotated.cols()) {
+            gray.release();
+            gray = new Mat(rotated.size(), CvType.CV_8UC1);
+        }
+
+        Imgproc.cvtColor(rotated, gray, Imgproc.COLOR_RGBA2GRAY);
 
         Imgproc.GaussianBlur(gray, gray, new Size(9, 9), 2, 2);
 
@@ -119,11 +155,11 @@ public class MainActivity extends AppCompatActivity implements CameraBridgeViewB
                 Point center = new Point(data[0], data[1]);
                 double radius = data[2];
 
-                Imgproc.circle(rgba, center, (int) radius, new Scalar(0, 255, 0, 255), 4);
-                Imgproc.circle(rgba, center, 5, new Scalar(255, 0, 0, 255), 5);
+                Imgproc.circle(rotated, center, (int) radius, new Scalar(0, 255, 0, 255), 4);
+                Imgproc.circle(rotated, center, 5, new Scalar(255, 0, 0, 255), 5);
             }
         }
 
-        return rgba;
+        return rotated;
     }
 }
