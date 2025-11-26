@@ -179,6 +179,8 @@ public class FaceDetectionActivity extends AppCompatActivity implements CameraBr
 
         // Orientar para vertical y espejar la cámara frontal
         Core.rotate(rgba, display, Core.ROTATE_90_CLOCKWISE);
+        // Corregir inversión vertical y mantener efecto espejo horizontal
+        Core.flip(display, display, 0);
         Core.flip(display, display, 1);
 
         if (gray == null || gray.rows() != display.rows() || gray.cols() != display.cols()) {
