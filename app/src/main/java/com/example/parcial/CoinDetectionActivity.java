@@ -27,9 +27,9 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Locale;
 
-public class MainActivity extends AppCompatActivity implements CameraBridgeViewBase.CvCameraViewListener2 {
+public class CoinDetectionActivity extends AppCompatActivity implements CameraBridgeViewBase.CvCameraViewListener2 {
 
-    private static final String TAG = "MainActivity";
+    private static final String TAG = "CoinDetectionActivity";
     private static final double TOLERANCE_PERCENTAGE = 0.10;
     private static final Scalar LABEL_COLOR = new Scalar(255, 0, 0, 255);
     private static final Scalar CIRCLE_COLOR = new Scalar(0, 255, 0, 255);
@@ -43,12 +43,11 @@ public class MainActivity extends AppCompatActivity implements CameraBridgeViewB
     private boolean hasCameraPermission = false;
     private List<CoinType> coinTypes;
 
-
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         getWindow().addFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON);
-        setContentView(R.layout.activity_main);
+        setContentView(R.layout.activity_coin_detection);
 
         tvInfo = findViewById(R.id.tvInfo);
 
